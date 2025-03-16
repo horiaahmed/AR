@@ -1,13 +1,55 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-  <script src="https://unpkg.com/@ar-js-org/ar.js"></script>
-</head>
-<body style="margin: 0; overflow: hidden;">
-  <a-scene embedded arjs>
-    <a-camera gps-camera rotation-reader></a-camera>
-    <a-box position="0 0 0" material="color: blue;" gps-entity-place="latitude: 30.0444; longitude: 31.2357;"></a-box>
-  </a-scene>
-</body>
+  <head>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script>
+      // Function to start speech recognition
+      function startListening() {
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = "en-US";
+        recognition.start();
+
+        recognition.onresult = (event) => {
+          let speechText = event.results[0][0].transcript;
+          console.log("User said:", speechText);
+
+          // Call function to reply
+          speakResponse(speechText);
+        };
+      }
+
+      // Function to make AR model speak
+      function speakResponse(text) {
+        let speech = new SpeechSynthesisUtterance();
+
+        if (text.includes("hello")) {
+          speech.text = "Hello! How are you today?";
+        } else if (text.includes("game")) {
+          speech.text = "Let's play a fun game together!";
+        } else {
+          speech.text = "I love talking with you!";
+        }
+
+        speech.lang = "en-US";
+        speech.pitch = 1;
+        speech.rate = 1;
+        window.speechSynthesis.speak(speech);
+      }
+    </script>
+  </head>
+  <body>
+    <button onclick="startListening()">Talk to AR</button>
+
+    <a-scene embedded arjs>
+      <a-camera position="0 0 0"></a-camera>
+
+      <!-- 3D character model -->
+      <a-gltf-model
+        src="Ar/white-cartoon-dog/white_cartoon_dog.glb"
+        position="0 0 -5"
+        scale="2 2 2"
+        animation-mixer
+      ></a-gltf-model>
+    </a-scene>
+  </body>
 </html>
