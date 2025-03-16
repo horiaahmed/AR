@@ -3,7 +3,14 @@
   <head>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script>
-      // Function to start speech recognition
+      AFRAME.registerComponent("gesture-listener", {
+        init: function () {
+          this.el.addEventListener("click", () => {
+            startListening();
+          });
+        },
+      });
+
       function startListening() {
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = "en-US";
@@ -12,15 +19,14 @@
         recognition.onresult = (event) => {
           let speechText = event.results[0][0].transcript;
           console.log("User said:", speechText);
-
-          // Call function to reply
           speakResponse(speechText);
         };
       }
 
-      // Function to make AR model speak
       function speakResponse(text) {
         let speech = new SpeechSynthesisUtterance();
+        let model = document.querySelector("#dogModel");
+        model.setAttribute("animation-mixer", "clip: Talk"); // Animate the mouth
 
         if (text.includes("hello")) {
           speech.text = "Hello! How are you today?";
@@ -34,21 +40,24 @@
         speech.pitch = 1;
         speech.rate = 1;
         window.speechSynthesis.speak(speech);
+
+        speech.onend = () => {
+          model.removeAttribute("animation-mixer"); // Stop animation when speech ends
+        };
       }
     </script>
   </head>
   <body>
-    <button onclick="startListening()">Talk to AR</button>
-
     <a-scene embedded arjs>
       <a-camera position="0 0 0"></a-camera>
 
-      <!-- 3D character model -->
+      <!-- 3D character model with tap gesture -->
       <a-gltf-model
-        src="https://github.com/horiaahmed/AR/blob/main/white-cartoon-dog/white_cartoon_dog.glb"
-        position="0 0 -5"
-        scale="2 2 2"
-        animation-mixer
+        id="dogModel"
+        src="white-cartoon-dog/white_cartoon_dog.glb"
+        position="0 0 -3"
+        scale=".2 .2 .2"
+        gesture-listener
       ></a-gltf-model>
     </a-scene>
   </body>
